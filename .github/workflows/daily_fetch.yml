@@ -1,1 +1,35 @@
 
+name: Daily Crypto Fetch
+
+on:
+  schedule:
+    - cron: '0 0 6 */1 *' # اجرا هر 30 روز یک بار (روز اول هر ماه، ساعت 00:00 UTC)
+  workflow_dispatch:      # امکان اجرای دستی
+
+jobs:
+  run-notebook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: |
+          pip install pandas pandas_ta requests yfinance nbconvert
+
+      - name: Run Notebook
+        run: |
+          jupyter nbconvert --to notebook --execute crypto_30days_data_fetch.ipynb --output crypto_30days_data_fetch_output.ipynb
+
+      - name: Commit updated database
+        run: |
+          git config --local user.email "ahmadmirzaei1368@gmail.com"
+          git config --local user.name "Hamedmaxy"
+          git add crypto_data_NEW1.db
+          git commit -m "Update crypto database"
+          git push
